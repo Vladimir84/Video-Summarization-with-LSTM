@@ -17,7 +17,7 @@ class mlp(object):
         if model_file == None:
             self.W = []
             self.b = []
-            for i in xrange(len(layers)-1):
+            for i in range(len(layers)-1):
                 self.W.append(theano.shared(0.02 * numpy.random.uniform(-1.0, 1.0, (layers[i], layers[i+1])).astype(theano.config.floatX)))
                 self.W[-1].name = self.layer_name + '_W' + str(i)
                 self.b.append(theano.shared(numpy.zeros(layers[i+1]).astype(theano.config.floatX)))
@@ -56,7 +56,7 @@ class mlp(object):
         def relu(x):
             return x * (x > 0)
 
-        for i in xrange(len(self.layers)-2):
+        for i in range(len(self.layers)-2):
             self.h.append(T.nnet.sigmoid(T.dot(self.h[i], self.W[i]) + self.b[i]))
 
         if net_type == 'tanh':

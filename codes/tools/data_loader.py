@@ -37,11 +37,11 @@ def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type =
         test_set[1].extend(label)
         test_set[2].extend(label_tmp)
         test_set[3].extend(weight)
-        te_idx.extend(range(50))
+        te_idx.extend(list(range(50)))
         [feature, label, weight] = load_dataset_h5(data_dir, 'SumMe', model_type)
         label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
         rand_idx = numpy.random.permutation(25)
-        for i in xrange(25):
+        for i in range(25):
             if i <= 15:
                 train_set[0].append(feature[rand_idx[i]])
                 train_set[1].append(label[rand_idx[i]])
@@ -61,11 +61,11 @@ def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type =
         test_set[1].extend(label)
         test_set[2].extend(label_tmp)
         test_set[3].extend(weight)
-        te_idx.extend(range(25))
+        te_idx.extend(list(range(25)))
         [feature, label, weight] = load_dataset_h5(data_dir, 'TVSum', model_type)
         label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
         rand_idx = numpy.random.permutation(50)
-        for i in xrange(50):
+        for i in range(50):
             if i <= 30:
                 train_set[0].append(feature[rand_idx[i]])
                 train_set[1].append(label[rand_idx[i]])
@@ -78,19 +78,19 @@ def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type =
                 val_set[3].append(weight[rand_idx[i]])
                 val_idx.append(rand_idx[i])
 
-    for i in xrange(len(train_set[0])):
+    for i in range(len(train_set[0])):
         train_set[0][i] = numpy.transpose(train_set[0][i])
         train_set[1][i] = train_set[1][i].flatten().astype(theano.config.floatX)
         train_set[2][i] = train_set[2][i].flatten().astype('int32')
         train_set[3][i] = train_set[3][i]
 
-    for i in xrange(len(val_set[0])):
+    for i in range(len(val_set[0])):
         val_set[0][i] = numpy.transpose(val_set[0][i])
         val_set[1][i] = val_set[1][i].flatten().astype(theano.config.floatX)
         val_set[2][i] = val_set[2][i].flatten().astype('int32')
         val_set[3][i] = val_set[3][i]
 
-    for i in xrange(len(test_set[0])):
+    for i in range(len(test_set[0])):
         test_set[0][i] = numpy.transpose(test_set[0][i])
         test_set[1][i] = test_set[1][i].flatten().astype(theano.config.floatX)
         test_set[2][i] = test_set[2][i].flatten().astype('int32')
@@ -145,12 +145,12 @@ class SequenceDataset:
     self.number_batches = number_batches
     self.items = []
 
-    for i_sequence in xrange(len(data[0])):
+    for i_sequence in range(len(data[0])):
       if batch_size is None:
-        self.items.append([data[i][i_sequence] for i in xrange(len(data))])
+        self.items.append([data[i][i_sequence] for i in range(len(data))])
       else:
-        for i_step in xrange(0, len(data[0][i_sequence]) - minimum_size + 1, batch_size):
-          self.items.append([data[i][i_sequence][i_step:i_step + batch_size] for i in xrange(len(data))])
+        for i_step in range(0, len(data[0][i_sequence]) - minimum_size + 1, batch_size):
+          self.items.append([data[i][i_sequence][i_step:i_step + batch_size] for i in range(len(data))])
 
     self.shuffle()
 
@@ -158,7 +158,7 @@ class SequenceDataset:
     numpy.random.shuffle(self.items)
 
   def iterate(self, update=True):
-    for b in xrange(self.number_batches):
+    for b in range(self.number_batches):
       yield self.items[(self.current_batch + b) % len(self.items)]
     if update: self.update()
 

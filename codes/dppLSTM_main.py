@@ -45,10 +45,10 @@ def inference(model_file, model_idx, test_set, test_dir, te_idx):
     h_func = theano.function(inputs=[model.inputs[0]], outputs=model.classify_mlp.h[-1])
     h_func_k = theano.function(inputs=[model.inputs[0]], outputs=model.kernel_mlp.h[-1])
     cFrm = []
-    for i in xrange(len(test_set[0])):
+    for i in range(len(test_set[0])):
         cFrm.append(test_set[0][i].shape[0])
     xf = h5py.File(model_file, 'r')
-    xf.keys()
+    list(xf.keys())
 
     pred = []
     pred_k = []

@@ -53,12 +53,12 @@ def adam_opt(model, train_set, valid_set, model_save_dir,
     log_file.write('lr=%f, beta1=%f, beta2=%f, epsilon=%f, gamma=%f\n' % (lr.get_value(), beta1, beta2, epsilon, gamma))
     log_file.close()
 
-    print '... training with Adam optimizer'
+    print('... training with Adam optimizer')
     cap_count = 0
     train_cost = []
     t0 = time.clock()
     try:
-        for u in xrange(n_iters):
+        for u in range(n_iters):
             if u % 10 == 0:
                 # refresh lr
                 try:
@@ -91,8 +91,8 @@ def adam_opt(model, train_set, valid_set, model_save_dir,
                 p_last = p_now
                 delta_last = delta_now
                 t1 = time.clock()
-                print 'period=%d, update=%d, mb_cost=[%.4f], |delta|=[%.2e], angle=[%.1f], lr=[%.6f], t=[%.2f]sec' % \
-                      (u/valid_period, u, numpy.mean(train_cost), numpy.mean(abs(delta_now[0:10000])), angle, lr.get_value(), (t1-t0))
+                print(('period=%d, update=%d, mb_cost=[%.4f], |delta|=[%.2e], angle=[%.1f], lr=[%.6f], t=[%.2f]sec' % \
+                      (u/valid_period, u, numpy.mean(train_cost), numpy.mean(abs(delta_now[0:10000])), angle, lr.get_value(), (t1-t0))))
                 t0 = time.clock()
                 train_cost = []
 
@@ -113,9 +113,9 @@ def adam_opt(model, train_set, valid_set, model_save_dir,
                 cap_count += valid_period*minibatch
                 output_info = 'period %i, valid loss=[%.4f], valid acc=[%.4f], train loss=[%.4f], train acc=[%.4f]' % \
                               (u/valid_period, numpy.mean(valid_loss), numpy.mean(valid_acc), numpy.mean(train_loss), numpy.mean(train_acc))
-                print output_info
+                print(output_info)
                 log_file = open(model_save_dir + 'log.txt', 'a')
                 log_file.write(output_info+'\n')
                 log_file.close()
     except KeyboardInterrupt:
-        print 'Training interrupted.'
+        print('Training interrupted.')

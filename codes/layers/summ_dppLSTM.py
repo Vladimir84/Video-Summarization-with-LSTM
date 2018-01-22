@@ -2,7 +2,7 @@ import h5py
 import numpy
 import theano
 import theano.tensor as T
-from mlp import mlp
+from .mlp import mlp
 
 
 class summ_dppLSTM(object):
