@@ -7,18 +7,72 @@ import numpy
 import theano
 import scipy.io as sio
 
-def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type = 1):
-    
+
+def load_custom_data(data_dir = '../data/', dataset_testing = 'TVSum', tvt_allocations = (70,20,10), label_type = 1):
+    # file name is <data_dir>+'/Data_' + <dataset> + '_google_p5.h5'
+    # tvt_allocations = percentages of total data allocated to (<training set>,<validation set>,<testing set>)
     train_set = [[], [], [], []]
-    
-    [feature, label, weight] = load_dataset_h5(data_dir, 'OVP', model_type)
+
+    [feature, label, weight] = load_dataset_h5(data_dir, dataset_testing, label_type)
+
+    label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
+
+    def extend_set(set, idx)
+       for i in idx:
+          set[0].append(feature[i])
+          set[1].append(label[i])
+          set[2].append(label_tmp[i])
+          set[3].append(weight[i])
+
+    # first tvt_allocations(1) % go to training data
+    # training and validation data have their frames order randomized in original code
+    # randomized remainder of the data and assign tvt_allocations(2) to validation
+    # and tvt_allocations(3) to testing data
+
+    train_set_lnz = int(len(feature)*(tvt_allocations(0)/100))
+    extend_set(train_set, range(train_set_lnz))
+
+    # training and validation data start at train_set_lnz+1
+    val_test_lnz = len(feature)-train_set_lnz
+    rand_idx = numpy.random.permutation(val_test_lnz)
+
+    val_set = [[], [], [], []]
+    val_set_lnz = int(val_test_lnz*(tvt_allocations(1)/100))
+    val_idx = [val_test_lnz+1+rand_idx[i] for i in range(val_set_lnz)]
+    extend_set(val_set, val_idx)
+
+    test_set = [[], [], [], []]
+    #test data startis at train_set_lnz+val_set_lnz+1
+    te_shift = val_test_lnz+val_set_lnz+1
+    te_idx = [shift + ri for ri in rand_idx[val_set_lnz+1:]]
+    extend_set(test_set, te_idx)
+
+    def convert_set(set):
+      for i in range(len(set[0])):
+         set[0][i] = numpy.transpose(set[0][i])
+         set[1][i] = set[1][i].flatten().astype(theano.config.floatX)
+         set[2][i] = set[2][i].flatten().astype('int32')
+         set[3][i] = set[3][i]
+
+    convert_set(train_set)
+    convert_set(train_set)
+    convert_set(train_set)
+
+    return train_set, val_set, val_idx, test_set, te_idx
+
+
+def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', label_type = 1):
+
+    train_set = [[], [], [], []]
+
+    [feature, label, weight] = load_dataset_h5(data_dir, 'OVP', label_type)
     label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
     train_set[0].extend(feature)
     train_set[1].extend(label)
     train_set[2].extend(label_tmp)
     train_set[3].extend(weight)
 
-    [feature, label, weight] = load_dataset_h5(data_dir, 'Youtube', model_type)
+    [feature, label, weight] = load_dataset_h5(data_dir, 'Youtube', label_type)
     label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
     train_set[0].extend(feature)
     train_set[1].extend(label)
@@ -31,14 +85,14 @@ def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type =
     te_idx = []
 
     if dataset_testing == 'TVSum':
-        [feature, label, weight] = load_dataset_h5(data_dir, 'TVSum', model_type)
+        [feature, label, weight] = load_dataset_h5(data_dir, 'TVSum', label_type)
         label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
         test_set[0].extend(feature)
         test_set[1].extend(label)
         test_set[2].extend(label_tmp)
         test_set[3].extend(weight)
         te_idx.extend(list(range(50)))
-        [feature, label, weight] = load_dataset_h5(data_dir, 'SumMe', model_type)
+        [feature, label, weight] = load_dataset_h5(data_dir, 'SumMe', label_type)
         label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
         rand_idx = numpy.random.permutation(25)
         for i in range(25):
@@ -55,14 +109,14 @@ def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type =
                 val_idx.append(rand_idx[i])
 
     elif dataset_testing == 'SumMe':
-        [feature, label, weight] = load_dataset_h5(data_dir, 'SumMe', model_type)
+        [feature, label, weight] = load_dataset_h5(data_dir, 'SumMe', label_type)
         label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
         test_set[0].extend(feature)
         test_set[1].extend(label)
         test_set[2].extend(label_tmp)
         test_set[3].extend(weight)
         te_idx.extend(list(range(25)))
-        [feature, label, weight] = load_dataset_h5(data_dir, 'TVSum', model_type)
+        [feature, label, weight] = load_dataset_h5(data_dir, 'TVSum', label_type)
         label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
         rand_idx = numpy.random.permutation(50)
         for i in range(50):
@@ -100,6 +154,7 @@ def load_data(data_dir = '../data/SOY/', dataset_testing = 'TVSum', model_type =
 
 def load_dataset_h5(data_dir, dataset, label_type):
     # loading data from a dataset in the format of hdf5 file
+    # label_type is 1 for frame importance, 2 for binary selected/not-selected 
     feature = []
     label = []
     weight = []
