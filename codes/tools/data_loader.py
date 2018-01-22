@@ -24,10 +24,10 @@ def load_custom_data(data_dir = '../data/', dataset_testing = 'TVSum', tvt_alloc
           set[2].append(label_tmp[i])
           set[3].append(weight[i])
 
-    # first tvt_allocations(1) % go to training data
+    # first tvt_allocations(0) % go to training data
     # training and validation data have their frames order randomized in original code
-    # randomized remainder of the data and assign tvt_allocations(2) to validation
-    # and tvt_allocations(3) to testing data
+    # randomized remainder of the data and assign tvt_allocations(1) to validation
+    # and tvt_allocations(2) to testing data
 
     train_set_lnz = int(len(feature)*(tvt_allocations(0)/100))
     extend_set(train_set, range(train_set_lnz))
@@ -55,8 +55,8 @@ def load_custom_data(data_dir = '../data/', dataset_testing = 'TVSum', tvt_alloc
          set[3][i] = set[3][i]
 
     convert_set(train_set)
-    convert_set(train_set)
-    convert_set(train_set)
+    convert_set(val_set)
+    convert_set(test_set)
 
     return train_set, val_set, val_idx, test_set, te_idx
 
