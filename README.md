@@ -76,7 +76,7 @@ To run evaluation on the predicted summarization, start the matlab and run the f
 cd ./codes
 dppLSTM_eval('../data/', '$DATASET$', '/dppLSTM_$DATASET$_2_inference.h5')
 ```
-
+---
 ### Notes
 Important [issues thread](https://github.com/kezhang-cs/Video-Summarization-with-LSTM/issues/1) from original repo: 
 - Folder res_LSTM should be created in /codes.
@@ -86,3 +86,8 @@ Important [issues thread](https://github.com/kezhang-cs/Video-Summarization-with
 Another comment from original repo on how they extracted features from video
 >We used caffe to extract feature for each frame, the code is available from here:
 >https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
+
+
+>For all models, we set the size of each
+>hidden layer of MLPs, the number of hidden units of each unidirectional LSTM,
+>and the output dimension of the MLP fS(·) all to be 256.
