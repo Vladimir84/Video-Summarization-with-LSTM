@@ -77,4 +77,7 @@ cd ./codes
 dppLSTM_eval('../data/', '$DATASET$', '/dppLSTM_$DATASET$_2_inference.h5')
 ```
 
-
+Important issues thread form original repo https://github.com/kezhang-cs/Video-Summarization-with-LSTM/issues/1
+  Folder res_LSTM should be created in /codes
+  Meaning of output fields: 
+    pred and predk are the corresponding prediction of y_i for each frame and \phi_i for DPP.
