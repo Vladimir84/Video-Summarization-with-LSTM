@@ -77,7 +77,11 @@ cd ./codes
 dppLSTM_eval('../data/', '$DATASET$', '/dppLSTM_$DATASET$_2_inference.h5')
 ```
 
-Important issues thread form original repo https://github.com/kezhang-cs/Video-Summarization-with-LSTM/issues/1
+### Notes
+Important issues thread from original repo https://github.com/kezhang-cs/Video-Summarization-with-LSTM/issues/1
   Folder res_LSTM should be created in /codes
   Meaning of output fields: 
     pred and predk are the corresponding prediction of y_i for each frame and \phi_i for DPP.
+Another comment from original repo on how they extracted features from video
+   We used caffe to extract feature for each frame, the code is available from here:
+https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
