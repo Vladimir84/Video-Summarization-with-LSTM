@@ -15,7 +15,7 @@ from layers.summ_dppLSTM import summ_dppLSTM
 
 
 def train(model_idx, train_set, val_set, lr=0.001, n_iters=100, minibatch=10, valid_period=1, model_saved = ''):
-
+    custom_data = False
     print('... training')
     model_save_dir = '../models/' + model_idx + '/'
     if os.path.exists(model_save_dir):
@@ -24,7 +24,13 @@ def train(model_idx, train_set, val_set, lr=0.001, n_iters=100, minibatch=10, va
 
     # build model
     print('... building model')
-    model = summ_dppLSTM(model_file = model_saved)
+    if custom_data:
+        # nx  - number of features per frame
+        # nh  - number of hidden units of each unidirectional LSTM
+        # nout- output dimension of the MLP fS(·)
+        model = summ_dppLSTM(nx=1001, nh=256, nout=256, model_file = None)
+    else: 
+        model = summ_dppLSTM(model_file = model_saved)
     train_seq = data_loader.SequenceDataset(train_set, batch_size=None, number_batches=minibatch)
     valid_seq = data_loader.SequenceDataset(val_set, batch_size=None, number_batches=len(val_set[0]))
 
@@ -67,18 +73,25 @@ def inference(model_file, model_idx, test_set, test_dir, te_idx):
 
 if __name__ == '__main__':
 
-    dataset_testing = 'SumMe' # testing dataset: SumMe or TVSum
-    model_type = 2 # 1 for vsLSTM and 2 for dppLSTM, please refer to the readme file for more detail
+    custom_data = False
+    dataset_testing = 'lstmFeatures' if custom_data else 'SumMe'
+    # dataset_testing = 'lstmFeatures' # testing dataset: SumMe or TVSum
+    # dataset_testing = 'SumMe' # testing dataset: SumMe or TVSum
+    model_type = 1 if custom_data else 2  # 1 for vsLSTM and 2 for dppLSTM, please refer to the readme file for more detail
     model_idx = 'dppLSTM_' + dataset_testing + '_' + model_type.__str__()
 
     # load data
-    print('... loading data')
-    train_set, val_set, val_idx, test_set, te_idx = data_loader.load_data(data_dir = '../data/', dataset_testing = dataset_testing, model_type = model_type)
+    print('... loading data for dataset ', dataset_testing)
+    if custom_data:
+       train_set, val_set, val_idx, test_set, te_idx = data_loader.load_custom_data(data_dir = '../../../Data/', dataset_testing = dataset_testing)
+    else:    
+       train_set, val_set, val_idx, test_set, te_idx = data_loader.load_data(data_dir = '../data/', dataset_testing = dataset_testing, label_type = model_type)
+    
     model_file = '../models/model_trained_' + dataset_testing
 
     """
     Uncomment the following line if you want to train the model
     """
-    # train(model_idx = model_idx, train_set = train_set, val_set = val_set, model_saved = model_file)
+    train(model_idx = model_idx, train_set = train_set, val_set = val_set, model_saved = model_file)
 
     inference(model_file=model_file, model_idx = model_idx, test_set=test_set, test_dir='./res_LSTM/', te_idx=te_idx)

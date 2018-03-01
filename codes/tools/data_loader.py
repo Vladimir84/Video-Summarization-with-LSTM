@@ -15,44 +15,51 @@ def load_custom_data(data_dir = '../data/', dataset_testing = 'TVSum', tvt_alloc
 
     [feature, label, weight] = load_dataset_h5(data_dir, dataset_testing, label_type)
 
+    print("custom_data_loader::len features = ",feature,",\n len label ",label[0].shape,"\n, weight ",weight)
+
     label_tmp = [numpy.where(l)[0].astype('int32') for l in label]
 
-    def extend_set(set, idx)
+    def extend_set(set_, idx):
        for i in idx:
-          set[0].append(feature[i])
-          set[1].append(label[i])
-          set[2].append(label_tmp[i])
-          set[3].append(weight[i])
+          set_[0].append(feature[i])
+          set_[1].append(label[i])
+          set_[2].append(label_tmp[i])
+          set_[3].append(weight[i])
+
+    #print("custom_data_loader::len features = ",feature.shape,", ",label.shape,", ",weight.shape)
 
     # first tvt_allocations(0) % go to training data
     # training and validation data have their frames order randomized in original code
     # randomized remainder of the data and assign tvt_allocations(1) to validation
     # and tvt_allocations(2) to testing data
 
-    train_set_lnz = int(len(feature)*(tvt_allocations(0)/100))
+    train_set_lnz = 1; #int(len(feature)*(tvt_allocations[0]/100))
     extend_set(train_set, range(train_set_lnz))
 
+    
+
     # training and validation data start at train_set_lnz+1
-    val_test_lnz = len(feature)-train_set_lnz
+    val_test_lnz = 1; #len(feature)-train_set_lnz
     rand_idx = numpy.random.permutation(val_test_lnz)
 
     val_set = [[], [], [], []]
-    val_set_lnz = int(val_test_lnz*(tvt_allocations(1)/100))
+    val_set_lnz = int(val_test_lnz*(tvt_allocations[1]/100))
     val_idx = [val_test_lnz+1+rand_idx[i] for i in range(val_set_lnz)]
-    extend_set(val_set, val_idx)
+    #extend_set(val_set, val_idx)
+    extend_set(val_set, [0])
 
     test_set = [[], [], [], []]
-    #test data startis at train_set_lnz+val_set_lnz+1
+    #test data start is at train_set_lnz+val_set_lnz+1
     te_shift = val_test_lnz+val_set_lnz+1
     te_idx = [shift + ri for ri in rand_idx[val_set_lnz+1:]]
     extend_set(test_set, te_idx)
 
-    def convert_set(set):
-      for i in range(len(set[0])):
-         set[0][i] = numpy.transpose(set[0][i])
-         set[1][i] = set[1][i].flatten().astype(theano.config.floatX)
-         set[2][i] = set[2][i].flatten().astype('int32')
-         set[3][i] = set[3][i]
+    def convert_set(set_):
+      for i in range(len(set_[0])):
+         set_[0][i] = numpy.transpose(set_[0][i])
+         set_[1][i] = set_[1][i].flatten().astype(theano.config.floatX)
+         set_[2][i] = set_[2][i].flatten().astype('int32')
+         set_[3][i] = set_[3][i]
 
     convert_set(train_set)
     convert_set(val_set)
@@ -159,6 +166,7 @@ def load_dataset_h5(data_dir, dataset, label_type):
     label = []
     weight = []
     file_name = data_dir + '/Data_' + dataset + '_google_p5.h5'
+    print("opening file ",file_name)
     f = h5py.File(file_name)
     vid_ord = numpy.sort(numpy.array(f['/ord']).astype('int32').flatten())
     for i in vid_ord:
@@ -206,6 +214,8 @@ class SequenceDataset:
       else:
         for i_step in range(0, len(data[0][i_sequence]) - minimum_size + 1, batch_size):
           self.items.append([data[i][i_sequence][i_step:i_step + batch_size] for i in range(len(data))])
+    
+    print("DEBUG::batch size is ",batch_size,", items ",len(self.items))
 
     self.shuffle()
 
