@@ -91,3 +91,5 @@ Another comment from original repo on how they extracted features from video
 >For all models, we set the size of each
 >hidden layer of MLPs, the number of hidden units of each unidirectional LSTM,
 >and the output dimension of the MLP fS(·) all to be 256.
+
+[Paper](https://hal.inria.fr/hal-01022967/PDF/video_summarization.pdf) about Kernel Temporal Segmentation used for selecting frames based on inferred ratings and corresponding [code](http://pascal.inrialpes.fr/data2/potapov/med_summaries/kts_ver1.1.tar.gz)
